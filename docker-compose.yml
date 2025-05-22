@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: johnatj33
+      MONGO_INITDB_ROOT_PASSWORD: lGOi21JK3KetJ3iN
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  nodeapp:
+    build: .
+    container_name: node-crud-app
+    restart: always
+    environment:
+      MONGO_URI: mongodb+srv://johnatj33:lGOi21JK3KetJ3iN@cluster0.kjqsuit.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge

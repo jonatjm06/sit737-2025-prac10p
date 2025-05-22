@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongo-backup
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mongo-backup
+              image: mongo:6.0
+              command:
+                - sh
+                - -c
+                - |
+                  mongodump \
+                  --uri="mongodb+srv://johnatj33:lGOi21JK3KetJ3iN@cluster0.kjqsuit.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" \
+                  --archive=/backup/mongo-backup.gz \
+                  --gzip
+              env:
+                - name: MONGO_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongo-secret
+                      key: username
+                - name: MONGO_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongo-secret
+                      key: password
+              volumeMounts:
+                - name: mongo-storage
+                  mountPath: /backup
+          restartPolicy: OnFailure
+          volumes:
+            - name: mongo-storage
+              persistentVolumeClaim:
+                claimName: mongodb-pvc
+
+
+
+
+
+
